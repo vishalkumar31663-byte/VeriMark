@@ -7,6 +7,7 @@ import {
   Cpu,
   Download,
   Moon,
+  QrCode,
   Search,
   ShieldAlert,
   ShieldCheck,
@@ -116,11 +117,81 @@ export function PublicVerifyPage() {
     }
   }, [receiptId, fpParam, runServerVerify]);
 
+  const parseQrOrReceiptInput = (raw: string): { id: string; fp?: string } | null => {
+    const cleaned = raw.trim();
+    if (!cleaned) return null;
+    // Support pasting full QR verification URLs (e.g. https://.../verify/VMK-2026-...?fp=ABCD1234)
+    if (cleaned.includes('/verify/')) {
+      try {
+        const parsed = new URL(
+          cleaned.startsWith('http') ? cleaned : `https://local.invalid${cleaned}`
+        );
+        const seg = parsed.pathname.split('/verify/')[1]?.split('/')[0];
+        if (seg) {
+          return {
+            id: decodeURIComponent(seg),
+            fp: parsed.searchParams.get('fp') ?? undefined,
+          };
+        }
+      } catch {
+        // fall through to plain receipt ID
+      }
+    }
+    return { id: cleaned };
+  };
+
   const handleLookupSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    const cleaned = lookupInput.trim();
-    if (!cleaned) return;
-    navigate(`/verify/${encodeURIComponent(cleaned)}`);
+    const parsed = parseQrOrReceiptInput(lookupInput);
+    if (!parsed) return;
+    const qs = parsed.fp ? `?fp=${encodeURIComponent(parsed.fp)}` : '';
+    navigate(`/verify/${encodeURIComponent(parsed.id)}${qs}`);
+  };
+
+  const handleQrImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const DetectorCtor = (
+      window as unknown as {
+        BarcodeDetector?: new (opts: { formats: string[] }) => {
+          detect: (src: ImageBitmapSource) => Promise<Array<{ rawValue: string }>>;
+        };
+      }
+    ).BarcodeDetector;
+
+    if (!DetectorCtor) {
+      pushToast(
+        'info',
+        'QR image decoding not supported in this browser',
+        'Paste the QR verification URL or enter the Receipt ID directly.'
+      );
+      return;
+    }
+
+    try {
+      const bitmap = await createImageBitmap(file);
+      const detector = new DetectorCtor({ formats: ['qr_code'] });
+      const codes = await detector.detect(bitmap);
+      if (codes.length === 0 || !codes[0].rawValue) {
+        pushToast('error', 'No QR code detected in uploaded image');
+        return;
+      }
+      const rawValue = codes[0].rawValue;
+      setLookupInput(rawValue);
+      const parsed = parseQrOrReceiptInput(rawValue);
+      if (parsed) {
+        const qs = parsed.fp ? `?fp=${encodeURIComponent(parsed.fp)}` : '';
+        navigate(`/verify/${encodeURIComponent(parsed.id)}${qs}`);
+      }
+    } catch {
+      pushToast(
+        'error',
+        'Could not decode QR image',
+        'Try pasting the verification URL or Receipt ID directly.'
+      );
+    } finally {
+      e.target.value = '';
+    }
   };
 
   const handleRunStandaloneVerification = async () => {
@@ -260,16 +331,26 @@ export function PublicVerifyPage() {
 
           <form onSubmit={handleLookupSubmit} className="flex flex-col sm:flex-row gap-3">
             <label htmlFor="verify-receipt-input" className="sr-only">
-              Receipt Identifier
+              Receipt Identifier or QR Verification Link
             </label>
             <input
               id="verify-receipt-input"
               type="text"
               value={lookupInput}
               onChange={(e) => setLookupInput(e.target.value)}
-              placeholder="Enter Receipt ID (e.g. VMK-2026-0001-…)"
+              placeholder="Enter Receipt ID (VMK-2026-…) or paste full QR verification URL"
               className="flex-1 px-4 py-2.5 text-sm font-mono rounded-lg bg-slate-50 dark:bg-[#0B1120] border border-slate-300 dark:border-slate-700 focus:outline-none focus:ring-2 focus:ring-indigo-500"
             />
+            <label className="inline-flex items-center justify-center gap-1.5 px-4 py-2.5 text-xs font-semibold rounded-lg border border-slate-300 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-800 cursor-pointer whitespace-nowrap">
+              <QrCode className="w-4 h-4 text-indigo-500" aria-hidden="true" />
+              <span>Scan QR Image</span>
+              <input
+                type="file"
+                accept="image/png,image/jpeg,image/webp"
+                onChange={(e) => void handleQrImageUpload(e)}
+                className="hidden"
+              />
+            </label>
             <button
               type="submit"
               className="inline-flex items-center justify-center gap-2 px-5 py-2.5 text-sm font-semibold rounded-lg bg-indigo-600 hover:bg-indigo-500 text-white whitespace-nowrap"
@@ -278,6 +359,19 @@ export function PublicVerifyPage() {
               <span>Verify Receipt</span>
             </button>
           </form>
+
+          <div className="flex flex-wrap items-center justify-between gap-2 text-xs text-slate-500">
+            <span>
+              Tip: Paste a scanned QR link (with <code className="font-mono">?fp=</code>) or upload
+              a screenshot of a VeriMark QR code.
+            </span>
+            <Link
+              to="/admit-card/verify"
+              className="font-semibold text-indigo-600 dark:text-indigo-400 hover:underline"
+            >
+              Verify Digital Admit Card Instead →
+            </Link>
+          </div>
 
           {!receiptId && sampleReceipts.length > 0 && (
             <div className="pt-3 border-t border-slate-200 dark:border-slate-800 space-y-2">

@@ -1,17 +1,26 @@
 import React, { useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import {
+  BarChart3,
+  Bell,
   Blocks,
+  CalendarClock,
+  Clock,
   FileCheck2,
   FilePlus2,
   FlaskConical,
+  GitCompareArrows,
   GitPullRequest,
   GraduationCap,
+  IdCard,
   LayoutDashboard,
+  LifeBuoy,
   LogOut,
   Menu,
   Moon,
+  Presentation,
   QrCode,
+  RefreshCcw,
   ShieldCheck,
   Sun,
   UserCheck,
@@ -22,95 +31,90 @@ import { UserRole } from '../../shared/types';
 import { useAuth } from '../context/AuthContext';
 import { useTheme } from '../context/ThemeContext';
 import { VeriMarkLogo } from './Logo';
+import { NotificationBell } from './v2/NotificationBell';
 
 interface NavItem {
   label: string;
   to: string;
   icon: React.ComponentType<{ className?: string }>;
-  roles: UserRole[];
+  exact?: boolean;
   devOnly?: boolean;
 }
 
-const NAV_ITEMS: NavItem[] = [
-  {
-    label: 'Admin Dashboard',
-    to: '/dashboard',
-    icon: LayoutDashboard,
-    roles: [UserRole.SUPER_ADMIN, UserRole.EXAMINER, UserRole.CONTROLLER],
-  },
-  {
-    label: 'Students',
-    to: '/students',
-    icon: Users,
-    roles: [UserRole.SUPER_ADMIN, UserRole.EXAMINER, UserRole.CONTROLLER],
-  },
-  {
-    label: 'Publish Results',
-    to: '/publish',
-    icon: FilePlus2,
-    roles: [UserRole.SUPER_ADMIN],
-  },
-  {
-    label: 'Published Results',
-    to: '/results',
-    icon: FileCheck2,
-    roles: [UserRole.SUPER_ADMIN, UserRole.EXAMINER, UserRole.CONTROLLER],
-  },
-  {
-    label: 'Correction Requests',
-    to: '/corrections',
-    icon: GitPullRequest,
-    roles: [UserRole.SUPER_ADMIN, UserRole.EXAMINER, UserRole.CONTROLLER],
-  },
-  {
-    label: 'Examiner Approvals',
-    to: '/approvals/examiner',
-    icon: UserCheck,
-    roles: [UserRole.EXAMINER, UserRole.SUPER_ADMIN],
-  },
-  {
-    label: 'Controller Approvals',
-    to: '/approvals/controller',
-    icon: UserCheck,
-    roles: [UserRole.CONTROLLER, UserRole.SUPER_ADMIN],
-  },
-  {
-    label: 'My Results',
-    to: '/student',
-    icon: GraduationCap,
-    roles: [UserRole.STUDENT],
-  },
-  {
-    label: 'Ledger Explorer',
-    to: '/ledger',
-    icon: Blocks,
-    roles: [UserRole.SUPER_ADMIN, UserRole.EXAMINER, UserRole.CONTROLLER],
-  },
-  {
-    label: 'Security Audit',
-    to: '/audit',
-    icon: ShieldCheck,
-    roles: [UserRole.SUPER_ADMIN, UserRole.EXAMINER, UserRole.CONTROLLER],
-  },
-  {
-    label: 'Public QR Verify',
-    to: '/verify',
-    icon: QrCode,
-    roles: [
-      UserRole.SUPER_ADMIN,
-      UserRole.EXAMINER,
-      UserRole.CONTROLLER,
-      UserRole.STUDENT,
-    ],
-  },
-  {
-    label: 'Tamper Lab (Dev)',
-    to: '/tamper-lab',
-    icon: FlaskConical,
-    roles: [UserRole.SUPER_ADMIN],
-    devOnly: true,
-  },
-];
+function getNavItemsForRole(role: UserRole): NavItem[] {
+  switch (role) {
+    case UserRole.STUDENT:
+      return [
+        { label: 'Dashboard', to: '/student', icon: LayoutDashboard, exact: true },
+        { label: 'Exam Schedule', to: '/exam-schedule', icon: CalendarClock },
+        { label: 'Exam Countdown', to: '/exam-countdown', icon: Clock },
+        { label: 'My Admit Cards', to: '/admit-cards', icon: IdCard },
+        { label: 'My Results', to: '/student/results', icon: GraduationCap },
+        { label: 'Proof of Result', to: '/proof-of-result', icon: ShieldCheck },
+        { label: 'Result Comparison', to: '/result-comparison', icon: GitCompareArrows },
+        { label: 'Result Analytics', to: '/analytics', icon: BarChart3 },
+        { label: 'Revaluation', to: '/revaluations', icon: RefreshCcw },
+        { label: 'Support Tickets', to: '/tickets', icon: LifeBuoy },
+        { label: 'Notifications', to: '/notifications', icon: Bell },
+        { label: 'Public QR Verify', to: '/verify', icon: QrCode },
+      ];
+
+    case UserRole.EXAMINER:
+      return [
+        { label: 'Examiner Dashboard', to: '/examiner', icon: LayoutDashboard, exact: true },
+        { label: 'Assigned Exams', to: '/assigned-exams', icon: CalendarClock },
+        { label: 'Exam Countdown', to: '/exam-countdown', icon: Clock },
+        { label: 'Correction Approvals', to: '/approvals/examiner', icon: UserCheck },
+        { label: 'Assigned Tickets', to: '/tickets', icon: LifeBuoy },
+        { label: 'Revaluation Reviews', to: '/revaluations', icon: RefreshCcw },
+        { label: 'Result Comparison', to: '/result-comparison', icon: GitCompareArrows },
+        { label: 'Result Analytics', to: '/analytics', icon: BarChart3 },
+        { label: 'Admit Card Check', to: '/admit-cards', icon: IdCard },
+        { label: 'Published Results', to: '/results', icon: FileCheck2 },
+        { label: 'Notifications', to: '/notifications', icon: Bell },
+        { label: 'Public QR Verify', to: '/verify', icon: QrCode },
+      ];
+
+    case UserRole.CONTROLLER:
+      return [
+        { label: 'Controller Dashboard', to: '/controller', icon: LayoutDashboard, exact: true },
+        { label: 'Exam Management', to: '/exam-management', icon: CalendarClock },
+        { label: 'Admit Cards & Seats', to: '/admit-cards', icon: IdCard },
+        { label: 'Controller Approvals', to: '/approvals/controller', icon: UserCheck },
+        { label: 'Ticket Management', to: '/tickets', icon: LifeBuoy },
+        { label: 'Revaluation Decisions', to: '/revaluations', icon: RefreshCcw },
+        { label: 'Result Comparison', to: '/result-comparison', icon: GitCompareArrows },
+        { label: 'Result Analytics', to: '/analytics', icon: BarChart3 },
+        { label: 'Ledger Explorer', to: '/ledger', icon: Blocks },
+        { label: 'Security Audit', to: '/audit', icon: ShieldCheck },
+        { label: 'Notifications', to: '/notifications', icon: Bell },
+        { label: 'Public QR Verify', to: '/verify', icon: QrCode },
+      ];
+
+    case UserRole.SUPER_ADMIN:
+    default:
+      return [
+        { label: 'Admin Dashboard', to: '/dashboard', icon: LayoutDashboard, exact: true },
+        { label: 'Students', to: '/students', icon: Users },
+        { label: 'Publish Results', to: '/publish', icon: FilePlus2 },
+        { label: 'Published Results', to: '/results', icon: FileCheck2 },
+        { label: 'Exam Management', to: '/exam-management', icon: CalendarClock },
+        { label: 'Admit Cards', to: '/admit-cards', icon: IdCard },
+        { label: 'Correction Requests', to: '/corrections', icon: GitPullRequest },
+        { label: 'Examiner Approvals', to: '/approvals/examiner', icon: UserCheck },
+        { label: 'Controller Approvals', to: '/approvals/controller', icon: UserCheck },
+        { label: 'Tickets', to: '/tickets', icon: LifeBuoy },
+        { label: 'Revaluations', to: '/revaluations', icon: RefreshCcw },
+        { label: 'Result Analytics', to: '/analytics', icon: BarChart3 },
+        { label: 'Ledger Explorer', to: '/ledger', icon: Blocks },
+        { label: 'Security Audit', to: '/audit', icon: ShieldCheck },
+        { label: 'Notifications', to: '/notifications', icon: Bell },
+        { label: 'Public QR Verify', to: '/verify', icon: QrCode },
+        { label: 'Judge Pitch Deck', to: '/pitch-deck', icon: Presentation },
+        { label: 'Tamper Lab (Dev)', to: '/tamper-lab', icon: FlaskConical, devOnly: true },
+      ];
+  }
+}
 
 function formatRoleLabel(role: UserRole): string {
   switch (role) {
@@ -144,12 +148,9 @@ export function AppShell({
   const navigate = useNavigate();
   const [mobileOpen, setMobileOpen] = useState(false);
 
-  const visibleItems = NAV_ITEMS.filter((item) => {
-    if (!user) return false;
-    if (!item.roles.includes(user.role)) return false;
-    if (item.devOnly && !tamperLabEnabled) return false;
-    return true;
-  });
+  const visibleItems = user
+    ? getNavItemsForRole(user.role).filter((item) => !(item.devOnly && !tamperLabEnabled))
+    : [];
 
   const handleLogout = async () => {
     await logout();
@@ -159,9 +160,10 @@ export function AppShell({
   const renderSidebarLinks = () => (
     <nav aria-label="Workspace navigation" className="flex-1 px-3 py-4 space-y-1 overflow-y-auto">
       {visibleItems.map((item) => {
-        const active =
-          location.pathname === item.to ||
-          (item.to !== '/' && location.pathname.startsWith(item.to + '/'));
+        const active = item.exact
+          ? location.pathname === item.to
+          : location.pathname === item.to ||
+            (item.to !== '/' && location.pathname.startsWith(item.to + '/'));
         const Icon = item.icon;
         return (
           <Link
@@ -311,7 +313,10 @@ export function AppShell({
             </div>
           </div>
 
-          <div className="flex items-center gap-3 shrink-0">{actions}</div>
+          <div className="flex items-center gap-3 shrink-0">
+            {actions}
+            <NotificationBell />
+          </div>
         </header>
 
         <main className="flex-1 p-4 sm:p-6 lg:p-8 max-w-[1440px] w-full mx-auto">

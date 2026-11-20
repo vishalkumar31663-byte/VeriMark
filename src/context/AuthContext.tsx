@@ -18,9 +18,9 @@ export function getDefaultRouteForRole(role: UserRole): string {
     case UserRole.SUPER_ADMIN:
       return '/dashboard';
     case UserRole.EXAMINER:
-      return '/approvals/examiner';
+      return '/examiner';
     case UserRole.CONTROLLER:
-      return '/approvals/controller';
+      return '/controller';
     case UserRole.STUDENT:
       return '/student';
     default:

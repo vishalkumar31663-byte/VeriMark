@@ -1,0 +1,1276 @@
+# MASTER PROMPT — VERIMARK 2.0 COMPLETE FEATURE UPGRADE
+
+## ROLE AND MISSION
+
+You are a senior full-stack developer, security engineer, database architect, and professional SaaS UI/UX designer.
+
+I am providing my existing project, **VeriMark — Tamper-Proof Exam Result Ledger**, created for the Code Fuzion 2026 hackathon.
+
+Your task is to upgrade the existing project by implementing 12 additional features across three principal dashboards:
+
+1. Student
+2. Examiner
+3. Examination Controller
+
+Retain the existing Super Admin role and all its functionality.
+
+**DO NOT build a new application from scratch. MODIFY AND EXTEND MY EXISTING VERIMARK PROJECT.**
+
+The final result must be a fully functional, responsive, secure examination-management system that preserves its original tamper-evident result ledger.
+
+---
+
+# PART 1 — UNDERSTAND THE EXISTING PROJECT
+
+Before making changes, inspect the uploaded source files.
+
+### Existing technology stack
+
+- React 19
+- TypeScript
+- Vite
+- Tailwind CSS
+- Node.js 22.14+
+- Express.js
+- SQLite using `node:sqlite`
+- React Router
+- Lucide Icons
+- Recharts
+- pdf-lib
+- QR Code generation
+- SHA-256 cryptographic hashing
+- Ed25519 digital signatures
+
+### Important existing files
+
+- `server/routes.ts` — API endpoints and authorization
+- `server/db.ts` — SQLite schema
+- `server/ledgerService.ts` — Ledger and correction operations
+- `server/verifyService.ts` — Result verification
+- `server/auditService.ts` — Security auditing
+- `server/trustStore.ts` — Trusted keys and checkpoints
+- `server/pdfService.ts` — PDF generation
+- `shared/types.ts` — Shared application types
+- `shared/verifier.ts` — Independent receipt verification
+- `src/App.tsx` — Application routes
+- `src/components/AppShell.tsx` — Dashboard navigation
+- `src/context/AuthContext.tsx` — Authentication
+- `src/pages/StudentDashboardPage.tsx`
+- `src/pages/PublicVerifyPage.tsx`
+- `src/pages/CorrectionRequestsPage.tsx`
+- `src/pages/ApprovalDashboardPage.tsx`
+
+### Existing security capabilities to preserve
+
+- Append-only cryptographically signed hash-chain ledger
+- Canonical serialization of result records
+- SHA-256 hashes
+- Ed25519 signatures
+- Signed external checkpoints
+- Pinned trusted public keys
+- Independently verifiable result receipts
+- QR-based PDF marksheets
+- Original and corrected result history
+- Independent Examiner and Controller signatures
+- Detection of unauthorized database changes
+- Standalone browser-side proof verification
+- Development-only Tamper Lab
+
+Reuse existing verification and result APIs rather than implementing a competing proof system.
+
+Existing endpoints include:
+
+- `GET /api/results/:id/history`
+- `GET /api/verify/:receiptId`
+- `GET /api/verify/:receiptId/proof`
+- `GET /api/marksheets/:resultId/pdf`
+- `POST /api/corrections`
+- `POST /api/corrections/:id/approve`
+- `POST /api/corrections/:id/finalize`
+
+Preserve their existing behavior.
+
+---
+
+# PART 2 — IMPLEMENT ALL 12 NEW FEATURES
+
+## FEATURE 1 — SMART NOTIFICATIONS
+
+Build a persistent notification system for all dashboards.
+
+### Student notifications
+- Exam timetable published
+- Examination date changed
+- Exam mode changed
+- Exam approaching
+- Admit card available
+- Examination result published
+- Result verification update
+- Revaluation application status changed
+- Ticket response received
+- Result correction finalized
+
+### Examiner notifications
+- Examination assigned
+- Schedule modified
+- Student ticket assigned
+- Revaluation request received
+- Result correction awaiting signature
+- Controller response received
+- Ticket escalated or reopened
+
+### Examination Controller notifications
+- Schedule publication request
+- New examiner-related request
+- Escalated ticket
+- Pending revaluation
+- Pending second-signature approval
+- Result correction finalized
+- Relevant ledger security alert
+
+### Notification functionality
+
+Build:
+- Bell icon in the dashboard header
+- Unread notification count
+- Notification dropdown
+- Full notification history page
+- Read/unread status
+- Mark all as read
+- Category and priority filtering
+- Direct navigation to related records
+- Persistent notification storage
+
+Use server-generated notifications triggered by actual successful operations.
+
+Use Server-Sent Events or efficient polling for timely updates.
+
+Do not use fabricated notifications or fake real-time activity.
+
+---
+
+## FEATURE 2 — PROOF OF RESULT
+
+Create a dedicated **Proof of Result** page.
+
+### Student capabilities
+
+Students must be able to:
+- View published results
+- See the result version
+- View the SHA-256 fingerprint
+- View receipt ID
+- See publication timestamp
+- Verify ledger-backed integrity
+- Download the existing QR marksheet
+- Export the existing cryptographic verification proof
+- See previous result versions
+- See whether a receipt is superseded
+- Copy the public verification URL
+
+### Verification statuses
+
+Reuse the existing verification statuses:
+
+- VERIFIED_ORIGINAL
+- VERIFIED_SUPERSEDED
+- TAMPERING_DETECTED
+- INVALID_SIGNATURE
+- NO_TRUSTED_CHECKPOINT
+- RECORD_NOT_FOUND
+- VERIFICATION_UNAVAILABLE
+
+Display user-friendly explanations for every status.
+
+### Examiner capabilities
+
+- Verify results within authorized scope
+- Inspect original and corrected result records
+- Access legitimate correction history
+
+### Controller capabilities
+
+- Inspect verification evidence
+- Compare result versions
+- Review approvals
+- Access security findings
+
+### UI requirements
+
+Display a premium verification card containing:
+- Student information
+- Exam details
+- Subject
+- Marks
+- Result version
+- Cryptographic fingerprint
+- Ledger sequence
+- Verification status
+- QR code
+- Proof download button
+
+Never show a result as authentic unless the cryptographic checks actually pass.
+
+---
+
+## FEATURE 3 — EXAMINATION SCHEDULE
+
+Build a complete examination scheduling system.
+
+### Required examination fields
+
+Each schedule entry must contain:
+- Examination ID
+- Subject code
+- Subject title
+- Academic session
+- Course
+- Semester
+- Examination category
+- Examination date
+- Start time
+- End time
+- Time zone
+- Examination mode
+- Location or authorized online access information
+- Examination instructions
+- Status
+- Created by
+- Published timestamp
+- Last modified timestamp
+
+### Student Dashboard
+
+Create **My Examination Schedule**.
+
+Include:
+- Upcoming examinations
+- Calendar view
+- List view
+- Subject filters
+- Semester filters
+- Examination status
+- Date and time
+- Mode indicator
+- Venue or online instructions
+- Download timetable as PDF
+
+Only display examinations relevant to the authenticated student.
+
+### Examiner Dashboard
+
+Create **Assigned Examinations**.
+
+Include:
+- Assigned subject
+- Examination date and time
+- Examination mode
+- Assigned venue
+- Examination instructions
+- Schedule modification request option
+- Schedule change alerts
+
+### Examination Controller Dashboard
+
+Create **Examination Management**.
+
+Allow:
+- Create schedule
+- Edit draft
+- Publish timetable
+- Assign examiners
+- Change exam date
+- Modify examination time
+- Change exam mode
+- Update examination venue
+- Cancel examinations
+- Review schedule change requests
+
+Keep an auditable schedule change history.
+
+Use draft and published states. Do not expose unpublished schedules to students.
+
+Validate date conflicts, invalid time ranges, duplicate assignments, and overlapping room or examiner allocations.
+
+---
+
+## FEATURE 4 — ONLINE / OFFLINE EXAM MODE
+
+Support two examination modes.
+
+### ONLINE EXAMINATION
+
+Show:
+- Online badge
+- Examination date
+- Start time
+- End time
+- Duration
+- Exam instructions
+- Authorized examination URL
+- Countdown
+- Access availability status
+
+The Join Examination button should respect authorization and permitted availability.
+
+Do not invent an online examination engine or claim online proctoring exists unless implemented.
+
+### OFFLINE EXAMINATION
+
+Show:
+- Offline badge
+- Campus
+- Building
+- Room
+- Reporting time
+- Exam duration
+- Seat number, if allocated
+- Required documents
+- Instructions
+
+Allow only authorized staff to modify published mode details.
+
+Notify affected Students and Examiners when the mode changes.
+
+Use the same scheduling data across all three dashboards to avoid inconsistent information.
+
+---
+
+## FEATURE 5 — RAISE & TRACK TICKET
+
+Implement a real support ticket system.
+
+### Student
+
+Create a **Raise Ticket** form.
+
+Required fields:
+- Ticket category
+- Subject
+- Detailed description
+- Related exam, if applicable
+- Related result, if applicable
+- Evidence attachment, if provided
+
+Ticket categories:
+- Incorrect marks
+- Missing result
+- Result verification issue
+- Exam timetable problem
+- Online exam issue
+- Offline examination issue
+- Admit card issue
+- Revaluation query
+- Other academic issue
+
+Students can:
+- Create tickets
+- View their tickets
+- Track status
+- Read staff responses
+- Add replies
+- Upload permitted evidence
+- Reopen eligible resolved tickets
+
+### Examiner
+
+Create **Assigned Tickets**.
+
+Allow:
+- View assigned tickets
+- Investigate complaints
+- Reply to students
+- Request additional evidence
+- Add staff-only investigation notes
+- Recommend resolution
+- Escalate to Controller
+
+Also allow an Examiner to raise an operational issue ticket where appropriate.
+
+### Examination Controller
+
+Create **Ticket Management**.
+
+Allow:
+- View tickets within authorized scope
+- Assign tickets
+- Reassign tickets
+- Review escalations
+- Reply to tickets
+- Resolve or reject with a reason
+- Review overdue tickets
+- Monitor ticket categories and resolution statistics
+
+### Ticket statuses
+
+- OPEN
+- ASSIGNED
+- IN_PROGRESS
+- WAITING_FOR_STUDENT
+- ESCALATED
+- RESOLVED
+- REJECTED
+- CLOSED
+- REOPENED
+
+Every ticket must have a unique ID, timestamped history, valid state transitions, and persistent messages.
+
+Students must not be able to access another student's private tickets.
+
+Attachments require safe type validation, size limits, secure storage, and authorization.
+
+---
+
+## FEATURE 6 — PUBLIC QR VERIFICATION
+
+The existing public QR verification is an important VeriMark capability.
+
+Enhance it without replacing its cryptographic implementation.
+
+### Features
+
+- Public QR scanner entry point
+- Manual receipt ID input
+- Receipt lookup
+- Real cryptographic verification
+- Result fingerprint display
+- Publication timestamp
+- Original versus superseded status
+- Authorized correction information
+- Independent browser verification
+- Export verification evidence
+- Clear errors for invalid or unknown receipts
+
+Existing marksheet QR codes must continue working.
+
+Use the existing `/verify/:receiptId` route and verification APIs.
+
+Preserve privacy protections in exported proof bundles.
+
+Do not expose unrelated student data.
+
+---
+
+## FEATURE 7 — RESULT COMPARISON
+
+Build a visual **Result Version Comparison** system.
+
+### Student
+
+Display:
+- Original marks
+- Latest authorized marks
+- Marks difference
+- Original publication date
+- Correction date
+- Correction reason
+- Previous receipt ID
+- Updated receipt ID
+- Verification status
+
+### Examiner
+
+Display:
+- Original result
+- Proposed correction
+- Actual finalized correction
+- Evidence
+- Signature approval status
+- Version history
+
+### Examination Controller
+
+Display:
+- Side-by-side result versions
+- Examiner approval
+- Controller approval
+- Cryptographic evidence
+- Correction explanation
+- Associated ledger entries
+- Linked ticket or revaluation request
+
+### Design
+
+Use two visually distinct comparison cards.
+
+**Original Result → Corrected Result**
+
+Highlight changed marks and version numbers.
+
+Do not display a proposed change as a completed correction.
+
+Use actual immutable ledger events and result history as the source of truth.
+
+---
+
+## FEATURE 8 — REVALUATION REQUESTS
+
+Build a structured revaluation workflow.
+
+### Student
+
+Students can:
+- Select a published result
+- Submit a revaluation request
+- Explain the reason
+- Attach permitted evidence
+- Receive a unique request ID
+- Track request status
+- Read the decision and explanation
+
+### Examiner
+
+Examiners can:
+- View assigned revaluation requests
+- Review relevant result records
+- Request supporting information
+- Record a reasoned recommendation
+- Recommend approval or rejection
+- Submit proposed new marks for authorized review
+
+### Examination Controller
+
+Controllers can:
+- Review Examiner recommendations
+- Authorize revaluation decisions
+- Reject requests with a reason
+- Initiate the existing correction workflow
+- Review completed revaluations
+
+### Revaluation statuses
+
+- SUBMITTED
+- UNDER_REVIEW
+- EVIDENCE_REQUIRED
+- RECOMMENDED
+- APPROVED_FOR_CORRECTION
+- REJECTED
+- CORRECTION_IN_PROGRESS
+- COMPLETED
+
+**Important distinction:**
+
+Revaluation approval alone must never modify published marks.
+
+If marks must change, use the existing independently signed correction workflow.
+
+Prevent duplicate active revaluation requests for the same result unless explicitly permitted by policy.
+
+---
+
+## FEATURE 9 — RESULT ANALYTICS
+
+Build modern analytical dashboards using Recharts.
+
+### Student Analytics
+
+Show:
+- Subject-wise obtained marks
+- Marks percentage
+- Overall average
+- Strongest subject
+- Lowest-scoring subject
+- Exam-wise performance trend
+- Performance history where valid comparison data exists
+
+Use:
+- Bar charts
+- Line charts
+- Progress indicators
+- Summary cards
+
+### Examiner Analytics
+
+Show analytics only for authorized subjects or assigned exams:
+- Number of evaluated students
+- Average marks
+- Highest marks
+- Lowest marks
+- Subject performance distribution
+- Result publication counts
+- Revaluation requests received
+
+### Examination Controller Analytics
+
+Show:
+- Total published results
+- Examination-wise performance
+- Course-wise aggregates
+- Result verification outcomes
+- Revaluation volume
+- Correction counts
+- Ticket volume
+- Ticket resolution statistics
+- Pending requests
+
+### Calculation rules
+
+All statistics must be calculated using actual database records.
+
+Use the latest legitimate result version for current performance metrics.
+
+Provide clear labeling for historical marks versus current marks.
+
+Respect maximum-mark differences when computing percentages.
+
+Do not double-count previous versions as separate student results.
+
+Use appropriate empty states when there is insufficient data.
+
+Do not fabricate AI insights or performance predictions.
+
+---
+
+## FEATURE 10 — DIGITAL ADMIT CARD
+
+Implement downloadable digital admit cards.
+
+### Student
+
+Create **My Admit Card**.
+
+Include:
+- Student name
+- Registration number
+- Course
+- Semester
+- Academic session
+- Examination name
+- Subject
+- Exam date
+- Reporting time
+- Examination mode
+- Venue or authorized online instructions
+- Room and seat number when applicable
+- QR verification code
+- Important instructions
+
+Use `pdf-lib` and existing QR generation dependencies.
+
+### Examiner
+
+Allow Examiners to view or verify admit cards for their assigned examination scope.
+
+### Examination Controller
+
+Allow Controllers to:
+- Define exam admit-card availability
+- Publish admit cards
+- Assign rooms and seats
+- Review issuance status
+- Reissue cards after authorized changes
+
+### Security requirements
+
+Admit-card QR verification is separate from result-receipt verification.
+
+Create a dedicated, secure admit-card verification flow.
+
+An admit card must not be represented as proof of exam attendance or proof of published marks.
+
+Prevent students from obtaining another student's private admit card.
+
+---
+
+## FEATURE 11 — TICKET-TO-CORRECTION WORKFLOW
+
+This is one of the most important integrated features.
+
+Implement the complete workflow:
+
+**Student raises result dispute → Examiner investigates → Controller reviews → Signed correction request → Two-authority approval → Ledger update → Student notification.**
+
+### Step 1 — Student dispute
+
+A student raises a ticket regarding incorrect published marks.
+
+The ticket links to the exact result ID and version.
+
+### Step 2 — Examiner investigation
+
+The authorized Examiner reviews:
+- Student complaint
+- Original marks
+- Submitted evidence
+- Result history
+
+The Examiner can recommend a correction.
+
+### Step 3 — Controller review
+
+The Examination Controller reviews the evidence and recommendation.
+
+If the proposed correction is justified, the appropriate correction request is prepared.
+
+### Step 4 — Cryptographic approvals
+
+Use the existing Ed25519 signing implementation.
+
+Require two independent approvals:
+- Examiner signature
+- Examination Controller signature
+
+Both signatures must bind to the exact same correction payload, including marks, reason, and original result version.
+
+### Step 5 — Ledger finalization
+
+Only after successful verification of both signatures:
+
+- Finalize correction through existing LedgerService
+- Append proper correction events
+- Update result version
+- Generate new receipt
+- Anchor the checkpoint
+- Preserve the previous proof
+
+Use the current transaction and checkpoint failure-handling logic.
+
+### Step 6 — Ticket synchronization
+
+When correction finalization succeeds:
+- Link the finalized correction record to the ticket
+- Add a ticket history event
+- Notify the student
+- Show original and corrected marks
+- Display the new verified receipt
+
+If ledger finalization fails, do not mark the correction as successful.
+
+### Critical rules
+
+A ticket cannot directly modify result marks.
+
+A Controller's administrative ticket decision cannot replace cryptographic signatures.
+
+Never accept a single signature as sufficient.
+
+Never overwrite or erase original published result evidence.
+
+---
+
+## FEATURE 12 — EXAM COUNTDOWN
+
+Create an attractive examination countdown system.
+
+### Student
+
+Display:
+- Next scheduled exam
+- Subject name
+- Examination date
+- Remaining days
+- Remaining hours
+- Remaining minutes
+- Examination mode
+- Venue or online instructions
+
+### Examiner
+
+Display countdowns to upcoming assigned examinations.
+
+### Examination Controller
+
+Show upcoming examinations and publication deadlines.
+
+### Behavior
+
+- Calculate countdown from actual published schedule data
+- Use the examination's defined time zone
+- Update countdown accurately
+- Show "Exam Started" after the start time
+- Show "Exam Completed" after the end time
+- Handle schedule changes automatically
+- Show a meaningful empty state when no exams are scheduled
+
+Do not use static countdown values.
+
+---
+
+# PART 3 — DASHBOARD NAVIGATION
+
+Update `src/components/AppShell.tsx` and `src/App.tsx`.
+
+Maintain existing pages and add the new navigation routes.
+
+## Student Dashboard
+
+Sidebar:
+- Dashboard
+- My Results
+- Proof of Result
+- Result Comparison
+- Result Analytics
+- Examination Schedule
+- Exam Countdown
+- Digital Admit Card
+- Revaluation Requests
+- Raise Ticket
+- My Tickets
+- Notifications
+- Public QR Verification
+
+Dashboard summary cards:
+- Upcoming Exams
+- Published Results
+- Verified Receipts
+- Active Tickets
+- Pending Revaluations
+- Next Exam Countdown
+
+## Examiner Dashboard
+
+Sidebar:
+- Dashboard
+- Assigned Exams
+- Exam Schedule
+- Exam Countdown
+- Published Results
+- Result Verification
+- Result Comparison
+- Result Analytics
+- Correction Requests
+- Examiner Approvals
+- Revaluation Reviews
+- Assigned Tickets
+- Raise Ticket
+- Notifications
+
+Dashboard summary cards:
+- Upcoming Assigned Exams
+- Pending Ticket Investigations
+- Pending Revaluations
+- Correction Approvals
+- Subject Performance
+
+## Examination Controller Dashboard
+
+Sidebar:
+- Dashboard
+- Examination Management
+- Examination Schedule
+- Exam Countdown
+- Examiner Assignments
+- Admit Card Management
+- Published Results
+- Proof Verification
+- Result Comparison
+- Result Analytics
+- Revaluation Management
+- Ticket Management
+- Controller Approvals
+- Notifications
+- Ledger Explorer
+- Security Audit
+
+Dashboard summary cards:
+- Upcoming Examinations
+- Published Results
+- Pending Correction Approvals
+- Active Disputes
+- Pending Revaluations
+- Ticket Statistics
+- Ledger Integrity Status
+
+Keep the existing Super Admin dashboard and its administrative permissions.
+
+Do not create duplicate routes or break established navigation.
+
+---
+
+# PART 4 — DATABASE ARCHITECTURE
+
+Extend `server/db.ts` safely.
+
+Reuse the existing `users`, `students`, `subjects`, `exams`, `results`, `result_receipts`, `correction_requests`, and ledger tables.
+
+Add normalized tables or equivalent structures for:
+
+- `exam_schedules`
+- `exam_assignments`
+- `exam_schedule_history`
+- `notifications`
+- `tickets`
+- `ticket_messages`
+- `ticket_events`
+- `ticket_attachments`
+- `revaluation_requests`
+- `admit_cards`
+- `exam_seat_assignments`
+
+Include proper:
+- Primary keys
+- Foreign keys
+- Unique constraints
+- Status checks
+- Date fields
+- Audit fields
+- Database indexes
+- Ownership and assignment relationships
+
+Use safe, versioned, repeatable migrations.
+
+Do not drop or reset existing result data.
+
+Preserve all existing security-critical tables and trust files.
+
+Use transactions where multiple related updates must succeed together.
+
+---
+
+# PART 5 — BACKEND API DEVELOPMENT
+
+Add real REST APIs under the existing `/api` prefix.
+
+Suggested endpoints:
+
+### Notifications
+
+- `GET /api/notifications`
+- `GET /api/notifications/unread-count`
+- `PATCH /api/notifications/:id/read`
+- `POST /api/notifications/mark-all-read`
+
+### Examination Schedules
+
+- `GET /api/exam-schedules`
+- `POST /api/exam-schedules`
+- `GET /api/exam-schedules/:id`
+- `PATCH /api/exam-schedules/:id`
+- `POST /api/exam-schedules/:id/publish`
+- `GET /api/exam-schedules/:id/history`
+
+### Tickets
+
+- `GET /api/tickets`
+- `POST /api/tickets`
+- `GET /api/tickets/:id`
+- `POST /api/tickets/:id/messages`
+- `PATCH /api/tickets/:id/status`
+- `POST /api/tickets/:id/escalate`
+- `POST /api/tickets/:id/reopen`
+
+### Revaluations
+
+- `GET /api/revaluations`
+- `POST /api/revaluations`
+- `GET /api/revaluations/:id`
+- `POST /api/revaluations/:id/recommendation`
+- `POST /api/revaluations/:id/decision`
+
+### Proofs and Comparison
+
+- `GET /api/results/:id/comparison`
+- Reuse existing `/api/verify/:receiptId/proof`
+- Reuse existing `/api/results/:id/history`
+- Reuse existing marksheet PDF endpoints
+
+### Analytics
+
+- `GET /api/analytics/student`
+- `GET /api/analytics/examiner`
+- `GET /api/analytics/controller`
+
+### Admit Cards
+
+- `GET /api/admit-cards`
+- `GET /api/admit-cards/:id`
+- `GET /api/admit-cards/:id/pdf`
+- `POST /api/admit-cards/publish`
+- `GET /api/admit-cards/verify/:token`
+
+Only expose the public admit-card verification endpoint's minimum necessary information.
+
+These are proposed endpoint names. Check existing routes before implementing to prevent collisions.
+
+All authenticated endpoints must enforce authorization server-side.
+
+---
+
+# PART 6 — UI DESIGN
+
+Make the application look like a polished, premium university SaaS platform.
+
+### Visual design
+
+- Modern and minimalist
+- Professional dashboard layout
+- Navy, indigo, white, and neutral gray
+- Consistent rounded cards
+- Attractive charts
+- Clean typography
+- Lucide icons
+- Subtle animations
+- Responsive navigation
+- Mobile-friendly tables and forms
+- Working dark and light themes
+
+### Important UI components
+
+Build reusable components for:
+- NotificationBell
+- NotificationCenter
+- ExamScheduleCalendar
+- ExamCountdownCard
+- ExamModeBadge
+- ResultProofCard
+- ResultComparisonPanel
+- TicketStatusTimeline
+- RevaluationTracker
+- AdmitCardPreview
+- PerformanceCharts
+- LoadingSkeleton
+- EmptyState
+- ConfirmationDialog
+
+Use the existing styling conventions wherever practical.
+
+Every button must perform a meaningful action.
+
+Every form must validate input and display real API responses.
+
+Provide proper loading, success, empty, and error states.
+
+Do not use fake backend responses to make unimplemented functionality appear complete.
+
+---
+
+# PART 7 — SECURITY AND INTEGRITY
+
+These requirements are mandatory.
+
+1. Preserve existing SHA-256 and Ed25519 cryptographic operations.
+2. Preserve the external checkpoint and trusted-key mechanisms.
+3. Preserve old public verification links.
+4. Never mutate published result history to conceal corrections.
+5. Require both Examiner and Controller signatures for corrections.
+6. Keep private signing keys and passphrases out of backend requests.
+7. Enforce role and record ownership checks in every protected endpoint.
+8. Reject unauthorized schedule edits and ticket access.
+9. Validate uploaded evidence and protect private attachments.
+10. Never trust frontend verification badges as security evidence.
+11. Use actual cryptographic verification before displaying authenticated proof status.
+12. Do not weaken the existing tamper detection tests.
+
+A direct database edit that bypasses the approved correction process must remain detectable.
+
+Remember: VeriMark is a **tamper-evident system**, not an absolutely tamper-proof blockchain.
+
+---
+
+# PART 8 — FUNCTIONAL TESTING
+
+Create automated tests for all 12 features.
+
+### Authentication and authorization tests
+- Student cannot read another student's tickets
+- Student cannot download another student's private admit card
+- Examiner cannot manage unauthorized examination assignments
+- Student cannot publish a timetable
+- Unauthorized users cannot approve mark corrections
+
+### Examination tests
+- Controller publishes timetable
+- Student sees the relevant examination
+- Examiner sees assigned examination
+- Changed schedule generates notifications
+- Conflicting exam assignments are rejected
+- Online/offline information displays correctly
+- Exam countdown uses correct schedule time
+
+### Ticket and revaluation tests
+- Student raises ticket
+- Examiner replies
+- Controller reviews escalation
+- Ticket status history is preserved
+- Revaluation decision does not directly change marks
+- Linked correction follows existing signing rules
+
+### Security tests
+- Existing public receipt proof still verifies
+- Existing QR links remain valid
+- Original receipt remains verifiable after correction
+- Result comparison shows actual ledger versions
+- Invalid signatures are rejected
+- Direct database tampering remains detectable
+- Failed checkpoint anchoring prevents false success
+
+### Analytics tests
+- Correct averages and percentages
+- Latest finalized versions used for current metrics
+- No duplicate version counting
+- Correct empty-data handling
+
+Run:
+- `npm run lint`
+- `npm test`
+- `npm run build`
+
+Do not claim tests passed unless they have actually been executed successfully.
+
+Keep existing tests passing and add regression tests.
+
+---
+
+# PART 9 — DEVELOPMENT WORKFLOW
+
+Implement the upgrade in this sequence.
+
+### Phase 1 — Codebase Audit
+Inspect all existing files, identify reusable APIs, understand role authorization, and document integration points.
+
+### Phase 2 — Database
+Add safe schema migrations and relational models.
+
+### Phase 3 — Core Backend
+Implement schedules, notifications, tickets, and revaluation APIs.
+
+### Phase 4 — Student Dashboard
+Implement all selected student features and connect them to actual backend data.
+
+### Phase 5 — Examiner Dashboard
+Implement examiner assignments, ticket investigations, revaluation reviews, and relevant approvals.
+
+### Phase 6 — Controller Dashboard
+Implement schedule publishing, assignment management, escalations, revaluation decisions, and analytics.
+
+### Phase 7 — Cryptographic Integration
+Connect result proof, comparison, tickets, and revaluation to the existing secure ledger workflow.
+
+### Phase 8 — UI Polish
+Improve responsive design, dashboards, navigation, loading states, and accessibility.
+
+### Phase 9 — Testing
+Run integration tests, security tests, TypeScript checks, and build validation.
+
+### Phase 10 — Documentation
+Update README with new features, setup instructions, API information, test commands, and a hackathon demonstration guide.
+
+---
+
+# PART 10 — HACKATHON DEMO WORKFLOW
+
+Prepare a functional demo demonstrating the complete system.
+
+**Scenario 1: Examination Publication**
+
+Controller creates an examination schedule and publishes it.
+
+Student sees the examination and receives a notification.
+
+Examiner sees the assigned examination.
+
+**Scenario 2: Admit Card**
+
+Student downloads an admit card.
+
+The admit-card QR verifies successfully.
+
+**Scenario 3: Result Verification**
+
+Student views a published result.
+
+Student downloads the existing QR marksheet and proof.
+
+Public verification validates the real signed ledger evidence.
+
+**Scenario 4: Result Dispute**
+
+Student raises a ticket claiming incorrect marks.
+
+Examiner investigates and recommends correction.
+
+Controller reviews the evidence.
+
+The correction goes through the existing two-signature approval system.
+
+**Scenario 5: Result Comparison**
+
+Student sees the previous and current authorized marks.
+
+Both receipt versions remain independently verifiable, with the original identified as superseded.
+
+**Scenario 6: Analytics**
+
+Student, Examiner, and Controller dashboards update from the finalized records.
+
+**Scenario 7: Security Test**
+
+Use the existing development-only Tamper Lab to attempt an unauthorized database edit.
+
+Show the security audit detecting the discrepancy.
+
+---
+
+# PART 11 — DEPLOYMENT REQUIREMENTS
+
+Keep the project runnable locally with its existing Node.js and Express architecture.
+
+Preserve:
+- Environment configuration
+- API routing
+- React frontend integration
+- Database initialization
+- Cryptographic trust configuration
+
+For production deployment:
+
+- Do not rely on an ephemeral serverless filesystem for persistent SQLite data.
+- Keep database state and trusted checkpoints in durable, appropriately protected storage.
+- Preserve trust-store independence from the primary database.
+- Protect production signing secrets.
+- Disable development-only attack simulation tools.
+- Document any infrastructure or architecture changes required for Vercel compatibility.
+- Do not pretend that local SQLite persistence will automatically work on serverless hosting.
+
+Provide actual deployment instructions that match the implemented architecture.
+
+---
+
+# PART 12 — FINAL DELIVERY REQUIREMENTS
+
+Deliver the **complete upgraded project**, not a conceptual design or frontend-only demo.
+
+The implementation must contain all 12 selected features:
+
+- Smart Notifications
+- Proof of Result
+- Examination Schedule
+- Online/Offline Mode
+- Raise & Track Ticket
+- Public QR Verification
+- Result Comparison
+- Revaluation Requests
+- Result Analytics
+- Digital Admit Card
+- Ticket-to-Correction Workflow
+- Exam Countdown
+
+All functionality must be connected to the three relevant dashboards.
+
+Before finishing:
+
+1. Verify the original application still works.
+2. Verify the ledger security has not been weakened.
+3. Run the tests and build.
+4. Fix implementation errors.
+5. Confirm all routes and navigation links work.
+6. Document any incomplete functionality truthfully.
+7. Provide the final updated source code and run instructions.
+
+Do not replace real cryptographic functionality with mock data.
+
+Do not remove existing project features.
+
+Do not generate a separate disconnected application.
+
+Do not stop after planning.
+
+**Build the actual upgrade inside my existing VeriMark project.**
+
+## FINAL VISION
+
+**VERIMARK 2.0 — SMART EXAMINATION MANAGEMENT & CRYPTOGRAPHIC RESULT VERIFICATION SYSTEM**
+
+Tagline: **Every Exam Organized. Every Result Verified. Every Change Accountable.**
+
+The finished system should demonstrate that a university can manage examinations, notify students, handle grievances, process legitimate corrections, and provide independent proof of published academic results—all through a secure, integrated platform.

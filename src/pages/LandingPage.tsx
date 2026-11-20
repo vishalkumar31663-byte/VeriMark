@@ -102,6 +102,12 @@ export function LandingPage() {
             >
               Threat Model
             </a>
+            <Link
+              to="/pitch-deck"
+              className="hover:text-slate-900 dark:hover:text-white transition-colors whitespace-nowrap shrink-0"
+            >
+              Judge Pitch Deck
+            </Link>
           </nav>
 
           <div className="flex items-center gap-3 shrink-0">
@@ -465,6 +471,9 @@ export function LandingPage() {
             <span>VeriMark · Demo University Examination Ledger · Code Fuzion 2026</span>
           </div>
           <div className="flex items-center gap-5">
+            <Link to="/pitch-deck" className="hover:text-slate-900 dark:hover:text-white">
+              Judge Pitch Deck (.pptx)
+            </Link>
             <Link to="/verify" className="hover:text-slate-900 dark:hover:text-white">
               Public Verification Portal
             </Link>

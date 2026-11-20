@@ -377,6 +377,12 @@ export class TamperService {
     }
   }
 
+  private onAfterReset?: () => void;
+
+  public setAfterResetHook(hook: () => void): void {
+    this.onAfterReset = hook;
+  }
+
   public async resetDemoDatabase(): Promise<{
     reset: boolean;
     auditReport: AuditReport;
@@ -384,6 +390,18 @@ export class TamperService {
     const db = this.database.db;
     db.exec(`
       PRAGMA foreign_keys = OFF;
+      DELETE FROM ticket_attachments;
+      DELETE FROM ticket_events;
+      DELETE FROM ticket_messages;
+      DELETE FROM tickets;
+      DELETE FROM revaluation_requests;
+      DELETE FROM admit_cards;
+      DELETE FROM exam_seat_assignments;
+      DELETE FROM schedule_change_requests;
+      DELETE FROM exam_schedule_history;
+      DELETE FROM exam_assignments;
+      DELETE FROM exam_schedules;
+      DELETE FROM notifications;
       DELETE FROM approvals;
       DELETE FROM correction_requests;
       DELETE FROM result_receipts;
@@ -405,6 +423,7 @@ export class TamperService {
       this.ledgerService,
       this.auditService
     );
+    this.onAfterReset?.();
 
     const auditReport = this.auditService.runAudit(true);
     return { reset: true, auditReport };
