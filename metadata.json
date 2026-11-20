@@ -1,0 +1,6 @@
+{
+  "name": "VeriMark — Tamper-Proof Exam Result Ledger",
+  "description": "Every Mark Verified. Every Change Accountable. Cryptographically verifiable university examination result ledger with Ed25519 dual-authority approvals, QR marksheets, and real-time tamper detection.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
